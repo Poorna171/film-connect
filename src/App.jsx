@@ -2,6 +2,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import PrivateRoute from './components/PrivateRoute';
 import Roleselector from './components/Roleselector';
 import ActorLogin from './pages/ActorLogin';
 import DirectorLogin from './pages/DirectorLogin';
@@ -9,7 +10,10 @@ import ActorSignup from './pages/ActorSignup';
 import DirectorSignup from './pages/DirectorSignup';
 import ActorDashboard from './pages/ActorDashboard';
 import DirectorDashboard from './pages/DirectorDashboard';
-import PrivateRoute from './components/PrivateRoute';
+import ScriptEditor from './pages/ScriptEditor';
+import DirectorMessages from './pages/DirectorMessages';
+import PostRole from './pages/PostRole';
+import PostedRoles from './pages/PostedRoles';
 
 // Main App component
 const App = () => {
@@ -36,6 +40,46 @@ const App = () => {
               element={
                 <PrivateRoute userType="director">
                   <DirectorDashboard />
+                </PrivateRoute>
+              } 
+            />
+            <Route 
+              path="/director/script/new" 
+              element={
+                <PrivateRoute userType="director">
+                  <ScriptEditor />
+                </PrivateRoute>
+              } 
+            />
+            <Route 
+              path="/director/script/:scriptId" 
+              element={
+                <PrivateRoute userType="director">
+                  <ScriptEditor />
+                </PrivateRoute>
+              } 
+            />
+            <Route 
+              path="/director/messages" 
+              element={
+                <PrivateRoute userType="director">
+                  <DirectorMessages />
+                </PrivateRoute>
+              } 
+            />
+            <Route 
+              path="/director/post-role" 
+              element={
+                <PrivateRoute userType="director">
+                  <PostRole />
+                </PrivateRoute>
+              } 
+            />
+            <Route 
+              path="/director/roles" 
+              element={
+                <PrivateRoute userType="director">
+                  <PostedRoles />
                 </PrivateRoute>
               } 
             />
