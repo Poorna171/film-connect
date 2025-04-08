@@ -1,10 +1,23 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { useParams, Navigate } from 'react-router-dom';
+import SignupForm from '../components/SignupForm';
 import { motion } from 'framer-motion';
 import { FaFilm } from 'react-icons/fa';
 import GridBackground from '../components/GridBackground';
 
-const NotFound = () => {
+const Signup = () => {
+  const { userType } = useParams();
+
+  // If no userType is specified, redirect to role selector
+  if (!userType) {
+    return <Navigate to="/role-selector" />;
+  }
+
+  // If invalid userType, redirect to role selector
+  if (userType !== 'actor' && userType !== 'director') {
+    return <Navigate to="/role-selector" />;
+  }
+
   return (
     <div className="min-h-screen bg-[#0A0F1C] text-white flex items-center justify-center p-4">
       <div className="relative w-full max-w-md">
@@ -16,39 +29,30 @@ const NotFound = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="relative z-10 text-center"
+          className="relative z-10 text-center mb-8"
         >
           <motion.div
             initial={{ scale: 0.5 }}
             animate={{ scale: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="mb-8"
+            className="mb-4"
           >
-            <FaFilm className="w-24 h-24 mx-auto text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-500 to-blue-600" />
+            <FaFilm className="w-16 h-16 mx-auto text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-500 to-blue-600" />
           </motion.div>
-          
-          <h1 className="text-9xl font-black mb-4">
+          <h1 className="text-4xl font-black mb-2">
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-500 to-blue-600">
-              404
+              Film Connect
             </span>
           </h1>
-          
-          <h2 className="text-2xl font-bold mb-6">Page Not Found</h2>
-          
-          <p className="text-gray-400 mb-8">
-            The page you're looking for doesn't exist or has been moved.
+          <p className="text-gray-400">
+            {userType === 'actor' ? 'Actor Signup' : 'Director Signup'}
           </p>
-          
-          <Link
-            to="/"
-            className="px-8 py-4 bg-gradient-to-r from-fuchsia-500 to-blue-600 rounded-lg font-bold hover:opacity-90 transition-opacity inline-block"
-          >
-            Return Home
-          </Link>
         </motion.div>
+
+        <SignupForm userType={userType} />
       </div>
     </div>
   );
 };
 
-export default NotFound;
+export default Signup; 

@@ -7,10 +7,11 @@ const PrivateRoute = ({ children, userType }) => {
 
   if (!currentUser) {
     // Redirect to login if not authenticated
-    return <Navigate to={`/login/${userType}`} />;
+    return <Navigate to="/" />;
   }
 
-  if (currentUser.userType !== userType) {
+  // Only check userType if it's provided
+  if (userType && currentUser.userType !== userType) {
     // Redirect to appropriate dashboard if wrong role
     return <Navigate to={`/${userType}-dashboard`} />;
   }

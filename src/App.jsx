@@ -1,19 +1,22 @@
 // src/App.jsx
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import Roleselector from './components/Roleselector';
-import ActorLogin from './pages/ActorLogin';
-import DirectorLogin from './pages/DirectorLogin';
-import ActorSignup from './pages/ActorSignup';
-import DirectorSignup from './pages/DirectorSignup';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import NotFound from './pages/NotFound';
 import ActorDashboard from './pages/ActorDashboard';
 import DirectorDashboard from './pages/DirectorDashboard';
 import ScriptEditor from './pages/ScriptEditor';
 import DirectorMessages from './pages/DirectorMessages';
 import PostRole from './pages/PostRole';
 import PostedRoles from './pages/PostedRoles';
+import HomeDashboard from './components/HomeDashboard';
+import Profile from './pages/Profile';
+import Navbar from './components/Navbar';
 
 // Main App component
 const App = () => {
@@ -21,25 +24,30 @@ const App = () => {
     <AuthProvider>
       <Router>
         <div className="min-h-screen bg-[#0A0F1C]">
+          <Navbar />
           <Routes>
-            <Route path="/" element={<Roleselector />} />
-            <Route path="/login/actor" element={<ActorLogin />} />
-            <Route path="/login/director" element={<DirectorLogin />} />
-            <Route path="/signup/actor" element={<ActorSignup />} />
-            <Route path="/signup/director" element={<DirectorSignup />} />
+            {/* Public Routes */}
+            <Route path="/" element={<Home />} />
+            <Route path="/role-selector" element={<Roleselector />} />
+            <Route path="/login/:userType" element={<Login />} />
+            <Route path="/signup/:userType" element={<Signup />} />
+
+            {/* Protected Actor Routes */}
             <Route 
               path="/actor-dashboard" 
               element={
                 <PrivateRoute userType="actor">
-                  <ActorDashboard />
+                  <HomeDashboard />
                 </PrivateRoute>
               } 
             />
+
+            {/* Protected Director Routes */}
             <Route 
               path="/director-dashboard" 
               element={
                 <PrivateRoute userType="director">
-                  <DirectorDashboard />
+                  <HomeDashboard />
                 </PrivateRoute>
               } 
             />
@@ -83,7 +91,29 @@ const App = () => {
                 </PrivateRoute>
               } 
             />
-            <Route path="*" element={<Navigate to="/" replace />} />
+
+            {/* Profile Route */}
+            <Route 
+              path="/profile/:userId" 
+              element={
+                <PrivateRoute>
+                  <Profile />
+                </PrivateRoute>
+              } 
+            />
+
+            {/* Unified Dashboard Route */}
+            <Route 
+              path="/dashboard" 
+              element={
+                <PrivateRoute>
+                  <HomeDashboard />
+                </PrivateRoute>
+              } 
+            />
+
+            {/* 404 Route */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
       </Router>

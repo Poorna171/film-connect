@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { 
-  FaUserTie, FaMapMarkerAlt, FaCalendarAlt, FaVenusMars, 
+  FaMapMarkerAlt, FaCalendarAlt, FaVenusMars, 
   FaBirthdayCake, FaEdit, FaTrash, FaEye, FaFileAlt, FaImage,
   FaPlus, FaSearch, FaFilter
 } from 'react-icons/fa';

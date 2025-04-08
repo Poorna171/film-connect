@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="800" height="600" fill="#1a1a2e"/>
+  
+  <!-- Gradient overlay -->
+  <defs>
+    <linearGradient id="portfolioGradient" x1="0" y1="0" x2="800" y2="600" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.3"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#portfolioGradient)"/>
+  
+  <!-- Scene elements -->
+  <rect x="100" y="100" width="600" height="400" rx="10" fill="#1e1b4b" opacity="0.7"/>
+  
+  <!-- Echo waves -->
+  <circle cx="400" cy="300" r="150" stroke="#4f46e5" stroke-width="2" fill="none" opacity="0.6"/>
+  <circle cx="400" cy="300" r="100" stroke="#4f46e5" stroke-width="2" fill="none" opacity="0.6"/>
+  <circle cx="400" cy="300" r="50" stroke="#4f46e5" stroke-width="2" fill="none" opacity="0.6"/>
+  
+  <!-- Person silhouette -->
+  <path d="M400 250 C 380 250, 360 270, 360 300 C 360 330, 380 350, 400 350 C 420 350, 440 330, 440 300 C 440 270, 420 250, 400 250" 
+        fill="#4f46e5" opacity="0.8"/>
+  <path d="M400 350 L 400 380" stroke="#4f46e5" stroke-width="10" opacity="0.8"/>
+  
+  <!-- Sound waves -->
+  <path d="M300 200 Q 350 180, 400 200 Q 450 220, 500 200" stroke="#3b82f6" stroke-width="2" fill="none" opacity="0.8"/>
+  <path d="M300 220 Q 350 200, 400 220 Q 450 240, 500 220" stroke="#3b82f6" stroke-width="2" fill="none" opacity="0.8"/>
+  <path d="M300 240 Q 350 220, 400 240 Q 450 260, 500 240" stroke="#3b82f6" stroke-width="2" fill="none" opacity="0.8"/>
+  
+  <!-- Decorative elements -->
+  <circle cx="200" cy="150" r="10" fill="#8b5cf6" opacity="0.6"/>
+  <circle cx="600" cy="150" r="10" fill="#3b82f6" opacity="0.6"/>
+  <circle cx="200" cy="450" r="10" fill="#3b82f6" opacity="0.6"/>
+  <circle cx="600" cy="450" r="10" fill="#8b5cf6" opacity="0.6"/>
+  
+  <!-- Title overlay -->
+  <rect x="100" y="520" width="600" height="60" rx="5" fill="#1a1a2e" opacity="0.8"/>
+  <text x="400" y="555" font-family="Arial" font-size="24" font-weight="bold" text-anchor="middle" fill="#ffffff">The Silent Echo</text>
+</svg> 

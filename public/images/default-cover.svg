@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="300" viewBox="0 0 1200 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1200" height="300" fill="#0A0F1C"/>
+  
+  <!-- Gradient overlay -->
+  <rect width="1200" height="300" fill="url(#coverGradient)"/>
+  
+  <!-- Film reel decorative elements -->
+  <circle cx="100" cy="150" r="40" fill="white" fill-opacity="0.1"/>
+  <circle cx="1100" cy="150" r="40" fill="white" fill-opacity="0.1"/>
+  
+  <!-- Camera icon -->
+  <path d="M580 130H620L640 150H680C691 150 700 159 700 170V210C700 221 691 230 680 230H520C509 230 500 221 500 210V170C500 159 509 150 520 150H560L580 130ZM600 200C616.569 200 630 186.569 630 170C630 153.431 616.569 140 600 140C583.431 140 570 153.431 570 170C570 186.569 583.431 200 600 200Z" fill="white" fill-opacity="0.2"/>
+  
+  <!-- Decorative dots -->
+  <circle cx="200" cy="100" r="4" fill="white" fill-opacity="0.3"/>
+  <circle cx="1000" cy="200" r="4" fill="white" fill-opacity="0.3"/>
+  <circle cx="300" cy="250" r="4" fill="white" fill-opacity="0.3"/>
+  <circle cx="900" cy="50" r="4" fill="white" fill-opacity="0.3"/>
+  
+  <!-- Gradients -->
+  <defs>
+    <linearGradient id="coverGradient" x1="0" y1="0" x2="1200" y2="300" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" style="stop-color:#D946EF;stop-opacity:0.2"/>
+      <stop offset="100%" style="stop-color:#3B82F6;stop-opacity:0.2"/>
+    </linearGradient>
+  </defs>
+</svg> 

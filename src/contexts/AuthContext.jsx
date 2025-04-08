@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 
 const AuthContext = createContext();
 
@@ -8,30 +8,41 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // Initialize user from localStorage
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+        setCurrentUser(user);
+      } catch (error) {
+        console.error('Error parsing stored user:', error);
+        localStorage.removeItem('user');
+      }
+    }
+    setLoading(false);
+  }, []);
+
   // Sign up with email and password
-  const signup = async (email, password, fullName, country, userType) => {
+  const signup = async (email, password, userType, userData = {}) => {
     try {
       setError('');
       setLoading(true);
       
-      // In a real app, this would make an API call to your backend
-      // For now, we'll simulate a successful signup
-      
       // Create a user object
       const user = {
-        uid: Date.now().toString(), // Generate a unique ID
+        uid: Date.now().toString(),
         email,
-        fullName,
-        country,
         userType,
+        ...userData,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
       
-      // Store user in localStorage for persistence
+      // Store user in localStorage
       localStorage.setItem('user', JSON.stringify(user));
       
       // Set current user
@@ -47,13 +58,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Sign in with email and password
-  const login = async (email, password) => {
+  const login = async (email, password, userType) => {
     try {
       setError('');
       setLoading(true);
-      
-      // In a real app, this would make an API call to your backend
-      // For now, we'll simulate a successful login
       
       // Get user from localStorage
       const storedUser = localStorage.getItem('user');
@@ -69,7 +77,10 @@ export const AuthProvider = ({ children }) => {
         throw new Error('Invalid email or password');
       }
       
-      // In a real app, you would verify the password here
+      // Check if user type matches
+      if (user.userType !== userType) {
+        throw new Error(`Invalid user type. Expected ${userType}`);
+      }
       
       // Set current user
       setCurrentUser(user);
@@ -89,21 +100,18 @@ export const AuthProvider = ({ children }) => {
       setError('');
       setLoading(true);
       
-      // In a real app, this would handle Google OAuth
-      // For now, we'll simulate a successful Google sign-in
-      
       // Create a user object with Google-like data
       const user = {
         uid: Date.now().toString(),
         email: 'google-user@example.com',
-        fullName: 'Google User',
+        name: 'Google User',
         photoURL: 'https://via.placeholder.com/150',
         userType,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
       
-      // Store user in localStorage for persistence
+      // Store user in localStorage
       localStorage.setItem('user', JSON.stringify(user));
       
       // Set current user
@@ -137,8 +145,6 @@ export const AuthProvider = ({ children }) => {
   // Get user data
   const getUserData = async (uid) => {
     try {
-      // In a real app, this would fetch user data from your backend
-      // For now, we'll return the current user
       return currentUser;
     } catch (error) {
       setError(error.message || 'Failed to get user data');
@@ -149,9 +155,6 @@ export const AuthProvider = ({ children }) => {
   // Update user profile
   const updateUserProfile = async (uid, data) => {
     try {
-      // In a real app, this would update user data in your backend
-      // For now, we'll update the current user
-      
       const updatedUser = {
         ...currentUser,
         ...data,
@@ -168,15 +171,6 @@ export const AuthProvider = ({ children }) => {
       throw error;
     }
   };
-
-  // Check if user is logged in on page load
-  React.useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setCurrentUser(JSON.parse(storedUser));
-    }
-    setLoading(false);
-  }, []);
 
   const value = {
     currentUser,
