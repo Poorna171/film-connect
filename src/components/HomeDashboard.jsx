@@ -32,15 +32,15 @@ const HomeDashboard = ({ userRole = 'actor' }) => {
 
   // Navigation Tabs
   const navTabs = [
-    { id: 'home', icon: Home, label: 'Home', path: `/${userRole}-dashboard` },
+    { id: 'home', icon: Home, label: 'Home', path: `/${userRole}` },
     ...(userRole === 'director' 
       ? [
-          { id: 'roles', icon: Film, label: 'Roles', path: `/director/roles` },
-          { id: 'discover', icon: Users, label: 'Discover', path: `/director/discover` }
+          { id: 'applications', icon: Film, label: 'Applications', path: `/${userRole}/applications` },
+          { id: 'discover', icon: Users, label: 'Discover', path: `/${userRole}/discover` }
         ] 
       : [
-          { id: 'applications', icon: Briefcase, label: 'Applications', path: `/actor/applications` },
-          { id: 'discover', icon: Users, label: 'Discover', path: `/actor/discover` }
+          { id: 'roles', icon: Briefcase, label: 'Roles', path: `/${userRole}/roles` },
+          { id: 'discover', icon: Users, label: 'Discover', path: `/${userRole}/discover` }
         ]
     ),
     { id: 'notifications', icon: Bell, label: 'Alerts', path: `/${userRole}/notifications` },
@@ -50,8 +50,11 @@ const HomeDashboard = ({ userRole = 'actor' }) => {
 
   // Quick Actions
   const quickActions = [
-    { id: 'post-role', icon: Plus, label: 'Post a Role', color: 'from-fuchsia-500 to-purple-600', path: '/director/roles' },
-    { id: 'upload-reel', icon: Upload, label: 'Upload Reel', color: 'from-cyan-500 to-blue-600', path: `/${userRole}/reels` },
+    ...(userRole === 'director' 
+      ? [{ id: 'post-role', icon: Plus, label: 'Post a Role', color: 'from-fuchsia-500 to-purple-600', path: '/director/applications' }]
+      : []
+    ),
+    { id: 'upload-reel', icon: Upload, label: 'Upload Reel', color: 'from-cyan-500 to-blue-600', path: `/${userRole}/profile` },
     { id: 'live-audition', icon: Video, label: 'Go Live', color: 'from-amber-500 to-orange-600', path: `/${userRole}/live` }
   ];
 

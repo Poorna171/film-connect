@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }) => {
       setError('');
       setLoading(true);
       
-      // Create a user object
+      // Create a user object with the specified role
       const user = {
         uid: Date.now().toString(),
         email,
@@ -79,7 +79,7 @@ export const AuthProvider = ({ children }) => {
       
       // Check if user type matches
       if (user.userType !== userType) {
-        throw new Error(`Invalid user type. Expected ${userType}`);
+        throw new Error(`You are registered as a ${user.userType}. Please sign in with the correct role.`);
       }
       
       // Set current user
@@ -94,19 +94,19 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Sign in with Google (simulated)
+  // Sign in with Google
   const signInWithGoogle = async (userType) => {
     try {
       setError('');
       setLoading(true);
       
-      // Create a user object with Google-like data
+      // Create a user object with Google-like data and the specified role
       const user = {
         uid: Date.now().toString(),
-        email: 'google-user@example.com',
+        email: `google-user-${Date.now()}@example.com`,
         name: 'Google User',
         photoURL: 'https://via.placeholder.com/150',
-        userType,
+        userType, // Store the selected role
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };

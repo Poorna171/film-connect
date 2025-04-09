@@ -2,17 +2,24 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Search, Send, Image, Mic, Paperclip, 
-  MoreVertical, Phone, Video, X
+  MoreVertical, Phone, Video, X, MessageSquare
 } from 'lucide-react';
 
-const Messages = () => {
+const Messages = ({ userRole }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedChat, setSelectedChat] = useState(null);
   const [messageInput, setMessageInput] = useState('');
+  const [isRecording, setIsRecording] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [messages, setMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
+  const [callModal, setCallModal] = useState({ isOpen: false, type: null });
+  const [callStatus, setCallStatus] = useState('idle'); // idle, calling, connected, ended
   const chatEndRef = useRef(null);
+  const fileInputRef = useRef(null);
+  const imageInputRef = useRef(null);
 
-  // Mock data for conversations
+  // Mock conversations data
   const conversations = [
     {
       id: 1,
@@ -33,21 +40,19 @@ const Messages = () => {
       timestamp: "1h ago",
       online: false,
       unread: 0
-    },
-    {
-      id: 3,
-      name: "Emma Thompson",
-      role: "Casting Director",
-      avatar: "https://randomuser.me/api/portraits/women/68.jpg",
-      lastMessage: "Can you send your portfolio?",
-      timestamp: "3h ago",
-      online: true,
-      unread: 1
     }
-  ];
+  ].filter(conv => {
+    // Filter conversations based on user role
+    if (userRole === 'actor') {
+      return conv.role === 'Director' || conv.role === 'Casting Director';
+    } else if (userRole === 'director') {
+      return conv.role === 'Actor';
+    }
+    return true;
+  });
 
   // Mock data for messages
-  const messages = {
+  const messagesData = {
     1: [
       { id: 1, text: "Hi! I saw your profile and I'm interested in casting you for my new film.", sent: false, timestamp: "10:30 AM" },
       { id: 2, text: "That sounds great! I'd love to learn more about the role.", sent: true, timestamp: "10:32 AM" },
@@ -65,14 +70,26 @@ const Messages = () => {
 
   // Scroll to bottom of chat when messages change
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [selectedChat, messages]);
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
+
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value);
+  };
 
   const handleSendMessage = () => {
     if (messageInput.trim()) {
-      // Add message to the chat
+      const newMessage = {
+        id: messages.length + 1,
+        text: messageInput,
+        sender: 'user',
+        timestamp: new Date().toLocaleTimeString(),
+      };
+      setMessages([...messages, newMessage]);
       setMessageInput('');
-      // In a real app, you would send this to your backend
+      setIsTyping(false);
     }
   };
 
@@ -83,195 +100,313 @@ const Messages = () => {
     }
   };
 
+  const handleAttachFile = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleAttachImage = () => {
+    imageInputRef.current?.click();
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Handle file upload logic here
+      console.log('File selected:', file.name);
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Handle image upload logic here
+      console.log('Image selected:', file.name);
+    }
+  };
+
+  const handleStartRecording = () => {
+    setIsRecording(true);
+    // Implement voice recording logic here
+    console.log('Started recording...');
+  };
+
+  const handleStopRecording = () => {
+    setIsRecording(false);
+    // Implement stop recording logic here
+    console.log('Stopped recording');
+  };
+
+  const handleVideoCall = () => {
+    if (!selectedChat) return;
+    setCallModal({ isOpen: true, type: 'video' });
+    setCallStatus('calling');
+    // Simulate call connection after 2 seconds
+    setTimeout(() => {
+      setCallStatus('connected');
+    }, 2000);
+  };
+
+  const handleVoiceCall = () => {
+    if (!selectedChat) return;
+    setCallModal({ isOpen: true, type: 'voice' });
+    setCallStatus('calling');
+    // Simulate call connection after 2 seconds
+    setTimeout(() => {
+      setCallStatus('connected');
+    }, 2000);
+  };
+
+  const handleEndCall = () => {
+    setCallStatus('ended');
+    setTimeout(() => {
+      setCallModal({ isOpen: false, type: null });
+      setCallStatus('idle');
+    }, 1000);
+  };
+
   return (
-    <div className="h-full bg-[#0A0F1C] text-white">
-      <div className="flex h-full">
-        {/* Conversations List */}
-        <div className="w-full md:w-80 border-r border-white/10 p-4">
-          {/* Search Bar */}
-          <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+    <div className="flex h-screen bg-[#0A0F1C] text-white">
+      {/* Conversations List */}
+      <div className="w-1/3 border-r border-white/10">
+        <div className="p-4">
+          <div className="relative">
             <input
               type="text"
               placeholder="Search conversations..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-white/5 rounded-lg border border-white/10 focus:outline-none focus:border-fuchsia-500"
+              onChange={handleSearch}
+              className="w-full px-4 py-2 bg-white/5 rounded-lg pl-10 focus:outline-none focus:ring-2 focus:ring-fuchsia-500"
             />
-          </div>
-
-          {/* Conversations */}
-          <div className="space-y-2">
-            {filteredConversations.map((conv) => (
-              <motion.div
-                key={conv.id}
-                onClick={() => setSelectedChat(conv.id)}
-                className={`p-3 rounded-lg cursor-pointer transition-all ${
-                  selectedChat === conv.id 
-                    ? 'bg-fuchsia-500/20 border border-fuchsia-500/50' 
-                    : 'hover:bg-white/5 border border-transparent'
-                }`}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="relative">
-                    <img
-                      src={conv.avatar}
-                      alt={conv.name}
-                      className="w-12 h-12 rounded-full object-cover"
-                    />
-                    {conv.online && (
-                      <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-[#0A0F1C]" />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex justify-between items-start">
-                      <h3 className="font-medium truncate">{conv.name}</h3>
-                      <span className="text-xs text-gray-400">{conv.timestamp}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <p className="text-sm text-gray-400 truncate">{conv.lastMessage}</p>
-                      {conv.unread > 0 && (
-                        <span className="bg-fuchsia-500 text-white text-xs px-2 py-1 rounded-full">
-                          {conv.unread}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs text-gray-500">{conv.role}</p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+            <Search className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
           </div>
         </div>
 
-        {/* Chat Window */}
-        <div className="flex-1 flex flex-col">
-          {selectedChat ? (
-            <>
-              {/* Chat Header */}
-              <div className="p-4 border-b border-white/10 flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <img
-                    src={conversations.find(c => c.id === selectedChat)?.avatar}
-                    alt="Profile"
-                    className="w-10 h-10 rounded-full"
-                  />
-                  <div>
-                    <h3 className="font-medium">
-                      {conversations.find(c => c.id === selectedChat)?.name}
-                    </h3>
-                    <p className="text-sm text-gray-400">
-                      {conversations.find(c => c.id === selectedChat)?.role}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <button className="p-2 hover:bg-white/5 rounded-full">
-                    <Phone className="w-5 h-5" />
-                  </button>
-                  <button className="p-2 hover:bg-white/5 rounded-full">
-                    <Video className="w-5 h-5" />
-                  </button>
-                  <button className="p-2 hover:bg-white/5 rounded-full">
-                    <MoreVertical className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Messages */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {messages[selectedChat]?.map((message) => (
-                  <motion.div
-                    key={message.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className={`flex ${message.sent ? 'justify-end' : 'justify-start'}`}
-                  >
-                    <div
-                      className={`max-w-[70%] p-3 rounded-lg ${
-                        message.sent
-                          ? 'bg-fuchsia-500 text-white'
-                          : 'bg-white/5 text-gray-200'
-                      }`}
-                    >
-                      <p>{message.text}</p>
-                      <span className="text-xs opacity-70 mt-1 block">
-                        {message.timestamp}
-                      </span>
-                    </div>
-                  </motion.div>
-                ))}
-                {isTyping && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="flex justify-start"
-                  >
-                    <div className="bg-white/5 p-3 rounded-lg">
-                      <div className="flex space-x-2">
-                        <motion.div
-                          animate={{ y: [0, -5, 0] }}
-                          transition={{ repeat: Infinity, duration: 1 }}
-                          className="w-2 h-2 bg-gray-400 rounded-full"
-                        />
-                        <motion.div
-                          animate={{ y: [0, -5, 0] }}
-                          transition={{ repeat: Infinity, duration: 1, delay: 0.2 }}
-                          className="w-2 h-2 bg-gray-400 rounded-full"
-                        />
-                        <motion.div
-                          animate={{ y: [0, -5, 0] }}
-                          transition={{ repeat: Infinity, duration: 1, delay: 0.4 }}
-                          className="w-2 h-2 bg-gray-400 rounded-full"
-                        />
-                      </div>
-                    </div>
-                  </motion.div>
+        <div className="overflow-y-auto">
+          {filteredConversations.map((chat) => (
+            <div
+              key={chat.id}
+              onClick={() => setSelectedChat(chat)}
+              className={`p-4 flex items-center space-x-4 hover:bg-white/5 cursor-pointer transition-colors ${
+                selectedChat?.id === chat.id ? 'bg-white/10' : ''
+              }`}
+            >
+              <div className="relative">
+                <img
+                  src={chat.avatar}
+                  alt={chat.name}
+                  className="w-12 h-12 rounded-full"
+                />
+                {chat.online && (
+                  <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-[#0A0F1C]" />
                 )}
-                <div ref={chatEndRef} />
               </div>
-
-              {/* Message Input */}
-              <div className="p-4 border-t border-white/10">
-                <div className="flex items-center space-x-4">
-                  <button className="p-2 hover:bg-white/5 rounded-full">
-                    <Paperclip className="w-5 h-5" />
-                  </button>
-                  <button className="p-2 hover:bg-white/5 rounded-full">
-                    <Image className="w-5 h-5" />
-                  </button>
-                  <input
-                    type="text"
-                    value={messageInput}
-                    onChange={(e) => setMessageInput(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    placeholder="Type a message..."
-                    className="flex-1 bg-white/5 rounded-lg border border-white/10 px-4 py-2 focus:outline-none focus:border-fuchsia-500"
-                  />
-                  <button className="p-2 hover:bg-white/5 rounded-full">
-                    <Mic className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={handleSendMessage}
-                    className="p-2 bg-fuchsia-500 hover:bg-fuchsia-600 rounded-full"
-                  >
-                    <Send className="w-5 h-5" />
-                  </button>
+              <div className="flex-1 min-w-0">
+                <div className="flex justify-between items-start">
+                  <h3 className="font-semibold truncate">{chat.name}</h3>
+                  <span className="text-xs text-gray-400">{chat.timestamp}</span>
                 </div>
+                <p className="text-sm text-gray-400 truncate">{chat.lastMessage}</p>
               </div>
-            </>
-          ) : (
-            <div className="flex-1 flex items-center justify-center">
-              <div className="text-center">
-                <h3 className="text-xl font-medium mb-2">Select a conversation</h3>
-                <p className="text-gray-400">Choose a chat from the list to start messaging</p>
-              </div>
+              {chat.unread > 0 && (
+                <div className="bg-fuchsia-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {chat.unread}
+                </div>
+              )}
             </div>
-          )}
+          ))}
         </div>
       </div>
+
+      {/* Chat Area */}
+      {selectedChat ? (
+        <div className="flex-1 flex flex-col">
+          {/* Chat Header */}
+          <div className="p-4 border-b border-white/10 flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <img
+                src={selectedChat.avatar}
+                alt={selectedChat.name}
+                className="w-10 h-10 rounded-full"
+              />
+              <div>
+                <h2 className="font-semibold">{selectedChat.name}</h2>
+                <p className="text-sm text-gray-400">{selectedChat.online ? 'Online' : 'Offline'}</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={handleVoiceCall}
+                className="p-2 hover:bg-white/10 rounded-full transition-colors"
+              >
+                <Phone className="w-5 h-5" />
+              </button>
+              <button
+                onClick={handleVideoCall}
+                className="p-2 hover:bg-white/10 rounded-full transition-colors"
+              >
+                <Video className="w-5 h-5" />
+              </button>
+              <button className="p-2 hover:bg-white/10 rounded-full transition-colors">
+                <MoreVertical className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            {messages.map((message) => (
+              <div
+                key={message.id}
+                className={`flex ${
+                  message.sender === 'user' ? 'justify-end' : 'justify-start'
+                }`}
+              >
+                <div
+                  className={`max-w-[70%] rounded-lg p-3 ${
+                    message.sender === 'user'
+                      ? 'bg-fuchsia-500'
+                      : 'bg-white/10'
+                  }`}
+                >
+                  <p>{message.text}</p>
+                  <span className="text-xs text-gray-300 mt-1 block">
+                    {message.timestamp}
+                  </span>
+                </div>
+              </div>
+            ))}
+            <div ref={chatEndRef} />
+          </div>
+
+          {/* Message Input */}
+          <div className="p-4 border-t border-white/10">
+            <div className="flex items-center space-x-4">
+              <div className="flex-1 bg-white/5 rounded-lg flex items-center">
+                <textarea
+                  value={messageInput}
+                  onChange={(e) => setMessageInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Type a message..."
+                  className="flex-1 bg-transparent px-4 py-2 focus:outline-none resize-none"
+                  rows="1"
+                />
+                <div className="flex items-center space-x-2 px-4">
+                  <button
+                    onClick={handleAttachFile}
+                    className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                  >
+                    <Paperclip className="w-5 h-5 text-gray-400" />
+                  </button>
+                  <button
+                    onClick={handleAttachImage}
+                    className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                  >
+                    <Image className="w-5 h-5 text-gray-400" />
+                  </button>
+                  <button
+                    onMouseDown={handleStartRecording}
+                    onMouseUp={handleStopRecording}
+                    className={`p-2 hover:bg-white/10 rounded-full transition-colors ${
+                      isRecording ? 'text-red-500' : 'text-gray-400'
+                    }`}
+                  >
+                    <Mic className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+              <button
+                onClick={handleSendMessage}
+                disabled={!messageInput.trim()}
+                className={`p-3 rounded-full ${
+                  messageInput.trim()
+                    ? 'bg-fuchsia-500 hover:bg-fuchsia-600'
+                    : 'bg-white/10 cursor-not-allowed'
+                } transition-colors`}
+              >
+                <Send className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Hidden file inputs */}
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            className="hidden"
+          />
+          <input
+            type="file"
+            ref={imageInputRef}
+            accept="image/*"
+            onChange={handleImageChange}
+            className="hidden"
+          />
+        </div>
+      ) : (
+        <div className="flex-1 flex items-center justify-center text-gray-400">
+          <p>Select a conversation to start messaging</p>
+        </div>
+      )}
+
+      {/* Call Modal */}
+      <AnimatePresence>
+        {callModal.isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-[#1A1F2C] rounded-xl p-6 max-w-md w-full mx-4"
+            >
+              <div className="text-center">
+                <div className="mb-4">
+                  <img
+                    src={selectedChat?.avatar}
+                    alt={selectedChat?.name}
+                    className="w-24 h-24 rounded-full mx-auto"
+                  />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">{selectedChat?.name}</h3>
+                <p className="text-gray-400 mb-4">
+                  {callStatus === 'calling' && 'Calling...'}
+                  {callStatus === 'connected' && `${callModal.type === 'video' ? 'Video' : 'Voice'} call connected`}
+                  {callStatus === 'ended' && 'Call ended'}
+                </p>
+                <div className="flex justify-center space-x-4">
+                  {callStatus === 'connected' && callModal.type === 'video' && (
+                    <button
+                      onClick={() => {}}
+                      className="p-3 bg-blue-500 rounded-full hover:bg-blue-600 transition-colors"
+                    >
+                      <Video className="w-6 h-6" />
+                    </button>
+                  )}
+                  {callStatus === 'connected' && (
+                    <button
+                      onClick={() => {}}
+                      className="p-3 bg-blue-500 rounded-full hover:bg-blue-600 transition-colors"
+                    >
+                      <Mic className="w-6 h-6" />
+                    </button>
+                  )}
+                  <button
+                    onClick={handleEndCall}
+                    className="p-3 bg-red-500 rounded-full hover:bg-red-600 transition-colors"
+                  >
+                    <Phone className="w-6 h-6 rotate-[135deg]" />
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

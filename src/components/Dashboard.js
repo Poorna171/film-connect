@@ -74,7 +74,15 @@ const mockPostedRoles = [
     applications: 12,
     status: 'open',
     description: 'Seeking a compelling female lead for a psychological thriller. The role demands a strong presence and ability to convey complex emotions.',
-    requirements: ['5+ years of acting experience', 'Strong screen presence', 'Available for 4 months', 'Based in Los Angeles']
+    requirements: ['5+ years of acting experience', 'Strong screen presence', 'Available for 4 months', 'Based in Los Angeles'],
+    credentials: {
+      ageRange: '25-35',
+      gender: 'Female',
+      ethnicity: 'Any',
+      height: '5\'4" - 5\'8"',
+      languages: ['English'],
+      specialSkills: ['Dancing', 'Martial Arts']
+    }
   },
   {
     id: 2,
@@ -85,7 +93,15 @@ const mockPostedRoles = [
     applications: 8,
     status: 'open',
     description: 'Looking for a talented male actor to play a supporting role in an independent drama film.',
-    requirements: ['3+ years of acting experience', 'Theater background preferred', 'Available for 2 months', 'Based in New York']
+    requirements: ['3+ years of acting experience', 'Theater background preferred', 'Available for 2 months', 'Based in New York'],
+    credentials: {
+      ageRange: '30-45',
+      gender: 'Male',
+      ethnicity: 'Any',
+      height: '5\'10" - 6\'2"',
+      languages: ['English'],
+      specialSkills: ['Singing', 'Accents']
+    }
   }
 ];
 
@@ -94,6 +110,8 @@ const Dashboard = ({ userRole }) => {
   const [showPostRoleModal, setShowPostRoleModal] = useState(false);
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [selectedRole, setSelectedRole] = useState(null);
+  const [showViewApplicationModal, setShowViewApplicationModal] = useState(false);
+  const [selectedApplication, setSelectedApplication] = useState(null);
 
   const renderSidebar = () => (
     <div className="bg-[#0A0F1C] text-white w-64 min-h-screen p-4 border-r border-white/10">
@@ -339,7 +357,7 @@ const Dashboard = ({ userRole }) => {
             className="flex items-center px-4 py-2 bg-gradient-to-r from-fuchsia-600 to-blue-600 text-white rounded-lg hover:opacity-90 transition-opacity"
           >
             <FaPlus className="mr-2" />
-            Post New Role
+            Add Role
           </button>
         )}
       </div>
@@ -404,10 +422,24 @@ const Dashboard = ({ userRole }) => {
                   <span>Posted: {role.postedDate}</span>
                   <span>Deadline: {role.deadline}</span>
                 </div>
-                <div className="mt-4 flex justify-between items-center">
-                  <span className="text-sm text-gray-400">{role.applications} applications</span>
-                  <button className="px-4 py-2 bg-gradient-to-r from-fuchsia-600 to-blue-600 text-white rounded-lg hover:opacity-90 transition-opacity">
-                    View Applications
+                <div className="mt-4 space-y-2">
+                  <button 
+                    className="w-full px-4 py-2 bg-gradient-to-r from-fuchsia-600 to-blue-600 text-white rounded-lg hover:opacity-90 transition-opacity"
+                    onClick={() => {
+                      setSelectedRole(role);
+                      setShowViewApplicationModal(true);
+                    }}
+                  >
+                    View Applications ({role.applications})
+                  </button>
+                  <button 
+                    className="w-full px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors"
+                    onClick={() => {
+                      setSelectedRole(role);
+                      setShowPostRoleModal(true);
+                    }}
+                  >
+                    Edit Role
                   </button>
                 </div>
               </div>
@@ -685,7 +717,9 @@ const Dashboard = ({ userRole }) => {
             className="bg-[#0A0F1C] rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-white/10"
           >
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-white">Post a New Role</h2>
+              <h2 className="text-2xl font-bold text-white">
+                {selectedRole ? 'Edit Role' : 'Post a New Role'}
+              </h2>
               <button 
                 onClick={() => setShowPostRoleModal(false)}
                 className="text-gray-400 hover:text-white transition-colors"
@@ -701,6 +735,7 @@ const Dashboard = ({ userRole }) => {
                   type="text"
                   className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-fuchsia-500 focus:border-transparent text-white placeholder-gray-500"
                   placeholder="e.g. Lead Actor - Drama Series"
+                  defaultValue={selectedRole?.title}
                 />
               </div>
               
@@ -711,6 +746,7 @@ const Dashboard = ({ userRole }) => {
                     type="text"
                     className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-fuchsia-500 focus:border-transparent text-white placeholder-gray-500"
                     placeholder="e.g. Los Angeles, CA"
+                    defaultValue={selectedRole?.location}
                   />
                 </div>
                 <div>
@@ -718,6 +754,7 @@ const Dashboard = ({ userRole }) => {
                   <input
                     type="date"
                     className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-fuchsia-500 focus:border-transparent text-white"
+                    defaultValue={selectedRole?.deadline}
                   />
                 </div>
               </div>
@@ -727,27 +764,51 @@ const Dashboard = ({ userRole }) => {
                 <textarea
                   className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-fuchsia-500 focus:border-transparent h-32 text-white placeholder-gray-500"
                   placeholder="Describe the role, requirements, and any other relevant information..."
+                  defaultValue={selectedRole?.description}
                 ></textarea>
               </div>
-              
+
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Requirements</label>
-                <div className="space-y-2">
-                  <div className="flex items-center">
-                    <input type="checkbox" className="mr-2 bg-white/5 border-white/10 text-fuchsia-500 focus:ring-fuchsia-500" />
-                    <span className="text-gray-300">5+ years of acting experience</span>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Role Credentials</label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm text-gray-400 mb-1">Age Range</label>
+                    <input
+                      type="text"
+                      className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-fuchsia-500 focus:border-transparent text-white placeholder-gray-500"
+                      placeholder="e.g. 25-35"
+                      defaultValue={selectedRole?.credentials?.ageRange}
+                    />
                   </div>
-                  <div className="flex items-center">
-                    <input type="checkbox" className="mr-2 bg-white/5 border-white/10 text-fuchsia-500 focus:ring-fuchsia-500" />
-                    <span className="text-gray-300">Strong emotional range</span>
+                  <div>
+                    <label className="block text-sm text-gray-400 mb-1">Gender</label>
+                    <select
+                      className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-fuchsia-500 focus:border-transparent text-white"
+                      defaultValue={selectedRole?.credentials?.gender}
+                    >
+                      <option value="">Select Gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Any">Any</option>
+                    </select>
                   </div>
-                  <div className="flex items-center">
-                    <input type="checkbox" className="mr-2 bg-white/5 border-white/10 text-fuchsia-500 focus:ring-fuchsia-500" />
-                    <span className="text-gray-300">Available for 3 months</span>
+                  <div>
+                    <label className="block text-sm text-gray-400 mb-1">Height Range</label>
+                    <input
+                      type="text"
+                      className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-fuchsia-500 focus:border-transparent text-white placeholder-gray-500"
+                      placeholder="e.g. 5&apos;4&quot; - 5&apos;8&quot;"
+                      defaultValue={selectedRole?.credentials?.height}
+                    />
                   </div>
-                  <div className="flex items-center">
-                    <input type="checkbox" className="mr-2 bg-white/5 border-white/10 text-fuchsia-500 focus:ring-fuchsia-500" />
-                    <span className="text-gray-300">Based in Los Angeles or willing to relocate</span>
+                  <div>
+                    <label className="block text-sm text-gray-400 mb-1">Languages</label>
+                    <input
+                      type="text"
+                      className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-fuchsia-500 focus:border-transparent text-white placeholder-gray-500"
+                      placeholder="e.g. English, Spanish"
+                      defaultValue={selectedRole?.credentials?.languages?.join(', ')}
+                    />
                   </div>
                 </div>
               </div>
@@ -764,107 +825,59 @@ const Dashboard = ({ userRole }) => {
                   type="submit"
                   className="px-4 py-2 bg-gradient-to-r from-fuchsia-600 to-blue-600 text-white rounded-lg hover:opacity-90 transition-opacity"
                 >
-                  Post Role
+                  {selectedRole ? 'Update Role' : 'Post Role'}
                 </button>
               </div>
             </form>
           </motion.div>
         </div>
       )}
-      
-      {/* Apply for Role Modal (for actors) */}
-      {showApplyModal && selectedRole && (
+
+      {/* View Applications Modal */}
+      {showViewApplicationModal && selectedRole && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.2 }}
-            className="bg-[#0A0F1C] rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-white/10"
+            className="bg-[#0A0F1C] rounded-xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-white/10"
           >
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-white">Apply for Role</h2>
+              <h2 className="text-2xl font-bold text-white">Applications for {selectedRole.title}</h2>
               <button 
-                onClick={() => setShowApplyModal(false)}
+                onClick={() => setShowViewApplicationModal(false)}
                 className="text-gray-400 hover:text-white transition-colors"
               >
                 ✕
               </button>
             </div>
-            
-            <div className="mb-6 p-4 bg-white/5 rounded-lg border border-white/10">
-              <h3 className="text-lg font-bold text-white">{selectedRole.title}</h3>
-              <p className="text-gray-400">Director: {selectedRole.director}</p>
-              <p className="text-gray-400">Location: {selectedRole.location}</p>
-              <p className="text-gray-400">Deadline: {selectedRole.deadline}</p>
-              
-              <div className="mt-4">
-                <h4 className="text-sm font-medium text-white">Description</h4>
-                <p className="text-gray-400 text-sm mt-1">{selectedRole.description}</p>
-              </div>
-              
-              <div className="mt-4">
-                <h4 className="text-sm font-medium text-white">Requirements</h4>
-                <ul className="list-disc list-inside text-gray-400 text-sm mt-1">
-                  {selectedRole.requirements.map((req, index) => (
-                    <li key={index}>{req}</li>
-                  ))}
-                </ul>
-              </div>
+
+            <div className="space-y-4">
+              {mockApplications.map(app => (
+                <div key={app.id} className="bg-white/5 rounded-lg p-4 border border-white/10">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="text-lg font-medium text-white">{app.roleTitle}</h3>
+                      <p className="text-gray-400">Applied on: {app.appliedDate}</p>
+                    </div>
+                    <span className={`px-3 py-1 rounded-full text-xs ${
+                      app.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-green-500/20 text-green-400'
+                    }`}>
+                      {app.status === 'pending' ? 'Pending Review' : 'Reviewed'}
+                    </span>
+                  </div>
+                  <p className="text-gray-400 mt-2">{app.coverLetter}</p>
+                  <div className="mt-4 flex justify-end space-x-2">
+                    <button className="px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors">
+                      View Profile
+                    </button>
+                    <button className="px-4 py-2 bg-gradient-to-r from-fuchsia-600 to-blue-600 text-white rounded-lg hover:opacity-90 transition-opacity">
+                      Schedule Interview
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
-            
-            <form className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Cover Letter</label>
-                <textarea
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-fuchsia-500 focus:border-transparent h-32 text-white placeholder-gray-500"
-                  placeholder="Introduce yourself and explain why you're a good fit for this role..."
-                ></textarea>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Resume/CV</label>
-                <div className="flex items-center justify-center w-full">
-                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-white/10 rounded-lg cursor-pointer bg-white/5 hover:bg-white/10 transition-colors">
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      <FaPaperPlane className="w-8 h-8 mb-3 text-gray-400" />
-                      <p className="mb-2 text-sm text-gray-400"><span className="font-semibold">Click to upload</span> or drag and drop</p>
-                      <p className="text-xs text-gray-500">PDF, DOC, DOCX (MAX. 5MB)</p>
-                    </div>
-                    <input className="hidden" type="file" accept=".pdf,.doc,.docx" />
-                  </label>
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Showreel/Portfolio</label>
-                <div className="flex items-center justify-center w-full">
-                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-white/10 rounded-lg cursor-pointer bg-white/5 hover:bg-white/10 transition-colors">
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      <FaFilm className="w-8 h-8 mb-3 text-gray-400" />
-                      <p className="mb-2 text-sm text-gray-400"><span className="font-semibold">Click to upload</span> or drag and drop</p>
-                      <p className="text-xs text-gray-500">MP4, MOV (MAX. 100MB)</p>
-                    </div>
-                    <input className="hidden" type="file" accept=".mp4,.mov" />
-                  </label>
-                </div>
-              </div>
-              
-              <div className="flex justify-end space-x-4">
-                <button
-                  type="button"
-                  onClick={() => setShowApplyModal(false)}
-                  className="px-4 py-2 bg-white/5 text-gray-300 rounded-lg hover:bg-white/10 border border-white/10"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-gradient-to-r from-fuchsia-600 to-blue-600 text-white rounded-lg hover:opacity-90 transition-opacity"
-                >
-                  Submit Application
-                </button>
-              </div>
-            </form>
           </motion.div>
         </div>
       )}

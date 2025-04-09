@@ -1,19 +1,20 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 const PrivateRoute = ({ children, userType }) => {
   const { currentUser } = useAuth();
+  const location = useLocation();
 
   if (!currentUser) {
-    // Redirect to login if not authenticated
-    return <Navigate to="/" />;
+    // Redirect to login with the return URL
+    return <Navigate to={`/login/${userType || 'actor'}`} state={{ from: location }} replace />;
   }
 
-  // Only check userType if it's provided
+  // If userType is specified, check if the user has the correct role
   if (userType && currentUser.userType !== userType) {
-    // Redirect to appropriate dashboard if wrong role
-    return <Navigate to={`/${userType}-dashboard`} />;
+    // Redirect to the appropriate dashboard based on their actual role
+    return <Navigate to={`/${currentUser.userType}`} replace />;
   }
 
   return children;
